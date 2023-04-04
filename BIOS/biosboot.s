@@ -19,7 +19,7 @@ mov BX , TEST_INIT_MSG
 call bprint
 
 mov AH , 0x2 ; Read from disk.
-mov AL , 0x1 ; Read one sector.
+mov AL , 0x2 ; Read two sectors.
 mov CH , 0x0 ; Cylinder 0.
 mov CL , 0x2 ; Start reading from sector 2.
 mov DH , 0x0 ; Head 0.
@@ -57,6 +57,33 @@ bios2_code:
 	mov bx , TEST_B2CODE_MSG
 	call bprint
 
+	; switch to pm
+	%include "bmodules/bswap_pm_inline.s"
+
+	; far jump
+	jmp 0x8:clear_rm
+
+
+bits 32
+clear_rm:
+
+	; point correct segement selectors.
+	mov ax , 0x10
+	mov ds , ax
+	mov ss , ax
+	; set es , fs , gs to null selector.
+	xor ax , ax
+	mov es , ax
+	mov fs , ax
+	mov gs , ax
+
+	; set stack to 0x90000.
+	mov esp , 0x90000
+
+	; Print something on screen.
+	mov byte [0xB8000], 'P'
+	mov byte [0xB8001], 0x1B
+
 	; Ininity loop
 	jmp $
 	
@@ -67,4 +94,4 @@ TEST_B2CODE_MSG:
 	db "Called from bios2", 0xA, 0xD, 0x0
 
 ; Make sure its 512 byte long.
-times 512 - ($-$$) db 0x0
+times 1024 - ($-$$) db 0x0
