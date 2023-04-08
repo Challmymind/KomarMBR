@@ -1,25 +1,21 @@
 BUILD_DIR = build
-LINKERS_DIR = "linkers"
-OS_NAME = Komar
+LINKERS_DIR = "Linkers"
 
-# Run this if othing was chosen.
-no_selection:
-	echo "You need to choose correct build tree"
 
-# BELOW PLACE MAIN BUILDS
+ifdef BUILD_TYPE
 
-# Bios build.
-bios: LBUILD_DIR = ${BUILD_DIR}/bios
-bios: OBJ_DIR=${LBUILD_DIR}/obj
-bios: bios_pre_build
-	ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/$@_${OS_NAME}.img ${shell find ${OBJ_DIR} -type f}
+BUILD_TYPE_DIR = ${BUILD_DIR}/${BUILD_TYPE}
+OBJ_DIR = ${BUILD_TYPE_DIR}/obj
 
-# BELOW PLACE BUILD SPECIFIC PRE BUILDS.
+BUILD: BUILD_PRE
+	ld -T ${LINKERS_DIR}/linker_${BUILD_TYPE}.ld -o ${BUILD_TYPE_DIR}/${BUILD_TYPE}.img ${shell find ${OBJ_DIR} -type f}
 
-bios_pre_build:
-	mkdir -p ${LBUILD_DIR}
+BUILD_PRE:
+	mkdir -p ${BUILD_TYPE_DIR}
 	mkdir -p ${OBJ_DIR}
-	make -C bios BUILD=${shell pwd}/${OBJ_DIR}
+	make -C ${BUILD_TYPE} BUILD=${shell pwd}/${OBJ_DIR}
 
 clear:
-	rm -r ${BUILD_DIR}
+	rm -r ${BUILD_TYPE_DIR}
+
+endif
