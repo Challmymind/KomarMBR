@@ -91,10 +91,6 @@ clear_rm:
 	; set stack to 0x90000.
 	mov esp , 0x90000
 
-	; Print something on screen.
-	mov byte [0xB8000], 'P'
-	mov byte [0xB8001], 0x1B
-
 	call 0x8:0x9200
 
 	; Ininity loop

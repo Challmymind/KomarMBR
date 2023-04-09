@@ -5,6 +5,7 @@ SECTIONS {
 
 	.text :
 	{
+		*(.boot)
 		*(.text)
 	}
  

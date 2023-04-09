@@ -12,34 +12,40 @@ no_selection:
 kernel: LBUILD_DIR = ${BUILD_DIR}/kernel
 kernel: OBJ_DIR=${LBUILD_DIR}/obj
 kernel: kernel_pre_build
-	ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/$@_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f} --oformat binary -melf_i386
+	@echo "Linking kernel."
+	@ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/$@_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f} --oformat binary -melf_i386
 
 kernel_pre_build:
-	mkdir -p ${LBUILD_DIR}
-	mkdir -p ${OBJ_DIR}
-	make -C kernel BUILD=${shell pwd}/${OBJ_DIR}
+	@echo "Creating kernel folders"
+	@mkdir -p ${LBUILD_DIR}
+	@mkdir -p ${OBJ_DIR}
+	@make -C kernel BUILD=${shell pwd}/${OBJ_DIR} --no-print-directory
 
 # BELOW PLACE MAIN SETUPS
 bios: LBUILD_DIR = ${BUILD_DIR}/bios
 bios: OBJ_DIR=${LBUILD_DIR}/obj
 bios: bios_build kernel
-	fallocate -l ${DISK_IMAGE_SIZE} ${BUILD_DIR}/$@.img
-	dd of="${BUILD_DIR}/$@.img" if="${BUILD_DIR}/$@/bios_${OS_NAME}.bin" conv=notrunc
-	dd of="${BUILD_DIR}/$@.img" if="${BUILD_DIR}/kernel/kernel_${OS_NAME}.bin" conv=notrunc seek=2
+	@echo "Creating image file."
+	@fallocate -l ${DISK_IMAGE_SIZE} ${BUILD_DIR}/$@.img
+	@dd of="${BUILD_DIR}/$@.img" if="/dev/zero" count=10 conv=notrunc 2> /dev/null
+	@dd of="${BUILD_DIR}/$@.img" if="${BUILD_DIR}/$@/bios_${OS_NAME}.bin" conv=notrunc 2> /dev/null
+	@dd of="${BUILD_DIR}/$@.img" if="${BUILD_DIR}/kernel/kernel_${OS_NAME}.bin" conv=notrunc seek=2 2> /dev/null
 
 
 # BELOW PLACE MAIN BUILDS
 
 # Bios build.
 bios_build: bios_pre_build
-	ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/bios_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f}
+	@echo "Linking legacy bios bootstrap."
+	@ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/bios_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f}
 
 # BELOW PLACE BUILD SPECIFIC PRE BUILDS.
 
 bios_pre_build:
-	mkdir -p ${LBUILD_DIR}
-	mkdir -p ${OBJ_DIR}
-	make -C bios BUILD=${shell pwd}/${OBJ_DIR}
+	@echo "Creating bios folders"
+	@mkdir -p ${LBUILD_DIR}
+	@mkdir -p ${OBJ_DIR}
+	@make -C bios BUILD=${shell pwd}/${OBJ_DIR} --no-print-directory
 
 clear:
 	rm -r ${BUILD_DIR}
