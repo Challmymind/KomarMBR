@@ -12,3 +12,5 @@ What you need to compile this project: </br>
 	make </br>
 	ld </br>
 	nasm </br>
+	fallocate </br>
+	dd </br>

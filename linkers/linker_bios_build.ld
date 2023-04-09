@@ -9,7 +9,7 @@ SECTIONS {
 		*(.bios1)
 	}
 	
-	# Second sector will be loaded at 0x9000 and in binary will start from 512byte offset (size of first sec)
+	# Second sector will be loaded at 0x9000 and in binary will start from 512 byte offset (size of first sec)
 	.bios_sec2 0x9000 : AT(0x200)
 	{
 		*(.bios2)
