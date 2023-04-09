@@ -11,6 +11,17 @@ section .bios1
 ; We are in real mode.
 bits 16
 
+; Zero-ing cs register.
+jmp 0x0:main
+
+main:
+
+; reseting other registers.
+xor ax , ax
+mov ds , ax
+mov es , ax
+mov ss , ax
+
 ; BIOS stores in DL drive that it was booted from.
 mov [DRIVE] , DL
 
@@ -84,6 +95,8 @@ clear_rm:
 	mov byte [0xB8000], 'P'
 	mov byte [0xB8001], 0x1B
 
+	call 0x8:0x9200
+
 	; Ininity loop
 	jmp $
 	
@@ -94,4 +107,4 @@ TEST_B2CODE_MSG:
 	db "Called from bios2", 0xA, 0xD, 0x0
 
 ; Make sure its 512 byte long.
-times 1024 - ($-$$) db 0x0
+times 512 - ($-$$) db 0x0
