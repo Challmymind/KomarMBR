@@ -15,4 +15,9 @@ SECTIONS {
 		*(.bios2)
 	}
 
+    /DISCARD/ : 
+    {
+        *(*)
+    }
+
 }

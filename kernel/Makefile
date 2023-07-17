@@ -6,7 +6,7 @@ kernel: kernel.o kernel_boot.o
 	@echo "Compiling kernel."
 
 kernel.o : kernel.c
-	@gcc -o ${BUILD}/$@ $^ -ffreestanding -nostdlib -m32 -c -fno-pie -fno-asynchronous-unwind-tables
+	@gcc -o ${BUILD}/$@ $^ -ffreestanding -nostdlib -c -fno-pie -fno-asynchronous-unwind-tables -m32
 
 kernel_boot.o: kernel_boot.s
-	@nasm -o ${BUILD}/$@ $^ -f elf32
+	@gcc -o ${BUILD}/$@ $^ -ffreestanding -nostdlib -c -fno-pie -fno-asynchronous-unwind-tables -m32

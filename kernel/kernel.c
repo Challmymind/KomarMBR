@@ -37,12 +37,12 @@ void print_text(int line_number, Tbuffer buf){
 	
 }
 
-Tbuffer WelcomeMSG = "Welcome in this very advance proof of concept test.";
+Tbuffer WelcomeMSG = "Welcome to this OS, you can stare at this screen forever";
 int _kernel(){
 
-	clear_line(0, 0x1b);
-	print_text(0, WelcomeMSG);
 
+    clear_line(0, 0x1b);
+	print_text(0, WelcomeMSG);
 	
 	while (1) {
 

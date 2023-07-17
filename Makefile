@@ -13,7 +13,7 @@ kernel: LBUILD_DIR = ${BUILD_DIR}/kernel
 kernel: OBJ_DIR=${LBUILD_DIR}/obj
 kernel: kernel_pre_build
 	@echo "Linking kernel."
-	@ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/$@_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f} --oformat binary -melf_i386
+	@ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/$@_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f} -melf_i386
 
 kernel_pre_build:
 	@echo "Creating kernel folders"

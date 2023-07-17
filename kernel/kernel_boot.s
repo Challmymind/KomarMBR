@@ -1,9 +1,9 @@
-section .boot
-bits 32
+.section .boot , "ax"
+.code32
 
-extern _kernel
+.extern _kernel
 call _kernel
-jmp $
+jmp .
 
-; For debbuging.
-dw 0xBEEF
+# For debbuging.
+.word 0xBEEF
