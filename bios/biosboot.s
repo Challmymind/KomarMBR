@@ -11,6 +11,7 @@
 .equ CYLINDER0         ,0x0
 .equ SECTOR2           ,0x2
 .equ HEAD0             ,0x0
+.equ PM_KERNEL         ,0x9200
 
 ######## BIOS1 ########
 .section .bios1 , "ax"
@@ -55,12 +56,12 @@ INIT_MSG:
 ######## BIOS2 ########
 bios2_code:
 
-#	.include "bmodules/bswap_pm_inline.s" # switch to pm.
-
     cli # 1. Disable interrupts.
     lgdt __pm_gdt_desc # 2. Load GDT
 
-    # 3. Set CR0 flag.
+    # 3. Set CR0 flag
+    # To be more precise we are setting up bit 0 of CR0 (called PE),
+    # enabling segmentation.
     movl    %cr0    , %eax
     orl     $0x1    , %eax
     movl    %eax    , %cr0
@@ -68,42 +69,53 @@ bios2_code:
 
 	jmp $0x8,$clear_rm # far jump
 
+    ######## GDT for IA-32 ########
+    .p2align 3, 0x58 # according to 3.2 in Intel Programing Manual Vol. 3A base address of GDT should be aligned an 
+    # eight byte for best processor performance.
     __pm_gdt_start:
     __pm_gdt_null:
         .long   0x0
         .long   0x0
     __pm_gdt_code:
-        .word   0xFFFF
-        .word   0x0000
-    
-        .byte   0x00
-        .byte   0b10011010
+        .word   0xFFFF      # segment limit     (0-15bits)
+        .word   0x0000      # base address      (0-15bits)
+        .byte   0x00        # base address      (16-23bits)
+        .byte   0b10011010   
+        # If i'm correct you must look at it from the last.
+        # [4bits] Type: "1010" 
+            # ^ Explained: (Code) Execute/Read
+        # [1bit] Descriptor type: "1" = code/data
+        # [2bits] Descriptor Privilage Level: "00"
+        # [1bit] Segment Present: "1:
         .byte   0b11001111
-        .byte   0x00
+        # [4bits] segment limit (16-19): "1111"
+        # [1bit] Avaible for use by system software: "0:
+        # [1bit] IA-32e segment: "0"
+        # [1bit] Default operation size: "1" = 32bit segment 
+        # [1bit] Granularity: "1" = segment size can be above 1MB
+        .byte   0x00        # base address      (24-31)
     __pm_gdt_data:
         .word   0xFFFF
         .word   0x0000
-
         .byte   0x00
         .byte   0b10010010
+        # Type explained: "0010" = (Data) Read/Write
         .byte   0b11001111
         .byte   0x00
     __pm_gdt_end:
-
     __pm_gdt_desc:
         .word   __pm_gdt_end - __pm_gdt_start - 1
         .long   __pm_gdt_start
-
 
 clear_rm:
     .code32
 
     ######## SET UP SEGMENTS ########
-    movw    $0x10   , %ax # point to correct segement selector.
-    movw    %ax     , %ds
+    movw    $0x10   , %ax
+    movw    %ax     , %ds # points to data segment. (data segment is offseted by 16 bytes from GDT base)
     movw    %ax     , %ss
 
-	# set es , fs , gs to null selector.
+	# set es , fs , gs to null selector because we are not using those segments.
 	xorw    %ax     , %ax
     movw    %ax     , %es
     movw    %ax     , %fs
@@ -112,11 +124,12 @@ clear_rm:
 
 	movl $0x90000 , %esp # set stack to 0x90000.
 
-	call $0x8,$0x9200 # Call kernel.
+	call $0x8,$PM_KERNEL # call pm_kernel
 
-	jmp . # Ininity loop.
+	jmp . # ininity loop.
 
 
+    ######## SET UP PAGING ########
 	
 LOAD_MSG:
 	.asciz "LOAD"
