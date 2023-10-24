@@ -1,8 +1,7 @@
 .section .boot , "ax"
-.code32
+.code64
 
-.extern _pm_kernel
-call _pm_kernel
+call _kernel
 jmp .
 
 # For debbuging.

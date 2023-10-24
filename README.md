@@ -14,3 +14,7 @@ Komar is for me learning journey that I want to share with others. <br>
 ## How to compile it? <br>
 Just run in the root of the project ```make bios```. <br>
 Then you can try this OS by running ```qemu-system-x86_64 build/bios.img```.
+
+### Latest announcement!
+We are finally in long mode! <br>
+Paging is working! <br>

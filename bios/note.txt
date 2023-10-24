@@ -1,2 +1,0 @@
-Build this if you want to create legacy bios flat binary file.
-You can use qemu to test this one.

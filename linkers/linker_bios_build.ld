@@ -15,6 +15,28 @@ SECTIONS {
 		*(.bios2)
 	}
 
+	.text :
+	{
+		*(.boot)
+		*(.text)
+	}
+ 
+	.rodata :
+	{
+		*(.rodata)
+	}
+ 
+	.data :
+	{
+		*(.data)
+	}
+ 
+	.bss :
+	{
+		*(COMMON)
+		*(.bss)
+	}
+
     /DISCARD/ : 
     {
         *(*)
