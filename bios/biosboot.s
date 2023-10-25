@@ -189,7 +189,7 @@ __enable_IA_32e_paging:
 __jmp_kernel:
     .code64
     mov  $0xA000    ,%rax
-    jmp  %rax
+    jmp  *%rax
 
 long_mode:
     .code64

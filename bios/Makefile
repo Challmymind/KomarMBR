@@ -1,6 +1,8 @@
-ifndef BUILD
-BUILD = .
+ifndef BUILD_DIR
+BUILD_DIR = .
 endif
+
+BUILD = ${BUILD_DIR}/bios
 
 GCCFLAGS = -ffreestanding \
 		   -nostdlib \
@@ -13,7 +15,9 @@ biosboot: biosboot.o biosbootc.o
 	@echo "Compiling legacy bios bootstrap."
 
 biosboot.o : biosboot.s
+	@mkdir -p ${BUILD}
 	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
 
 biosbootc.o : biosboot.c
+	@mkdir -p ${BUILD}
 	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}

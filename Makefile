@@ -1,4 +1,4 @@
-BUILD_DIR = build
+BUILD_DIR = ${shell pwd}/build
 LINKERS_DIR = linkers
 OS_NAME = Komar
 DISK_IMAGE_SIZE = 1M
@@ -7,42 +7,34 @@ DISK_IMAGE_SIZE = 1M
 no_selection:
 	@echo "You need to choose correct build tree"
 
-# BELOW PLACE KERNEL
-
-kernel: LBUILD_DIR = ${BUILD_DIR}/kernel
-kernel: OBJ_DIR=${LBUILD_DIR}/obj
-kernel: kernel_pre_build
-	@echo "Linking kernel."
-	@ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/$@_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f}
-
-kernel_pre_build:
-	@echo "Creating kernel folders"
-	@mkdir -p ${LBUILD_DIR}
-	@mkdir -p ${OBJ_DIR}
-	@make -C kernel BUILD=${shell pwd}/${OBJ_DIR} --no-print-directory
-
-# BELOW PLACE MAIN SETUPS
-bios: LBUILD_DIR = ${BUILD_DIR}/bios
-bios: OBJ_DIR=${LBUILD_DIR}/obj
-bios: bios_build kernel
+all: link
 	@echo "Creating image file."
-	@fallocate -l ${DISK_IMAGE_SIZE} ${BUILD_DIR}/$@.img
-	@dd of="${BUILD_DIR}/$@.img" if="/dev/zero" count=20 conv=notrunc 2> /dev/null
-	@dd of="${BUILD_DIR}/$@.img" if="${BUILD_DIR}/$@/bios_${OS_NAME}.bin" conv=notrunc 2> /dev/null
-	@dd of="${BUILD_DIR}/$@.img" if="${BUILD_DIR}/kernel/kernel_${OS_NAME}.bin" conv=notrunc seek=9 2> /dev/null
+	@fallocate -l ${DISK_IMAGE_SIZE} ${BUILD_DIR}/${OS_NAME}.img
+	@dd of="${BUILD_DIR}/${OS_NAME}.img" \
+		if="/dev/zero" \
+		count=20 \
+		conv=notrunc 2> /dev/null
+	@dd of="${BUILD_DIR}/${OS_NAME}.img" \
+		if="${BUILD_DIR}/images/bios.bin" \
+		conv=notrunc 2> /dev/null
+	@dd of="${BUILD_DIR}/${OS_NAME}.img" \
+		if="${BUILD_DIR}/images/kernel.bin" \
+		conv=notrunc \
+		seek=9 2> /dev/null
 
+link: build
+	@echo "Link files"
+	@mkdir -p ${BUILD_DIR}/images
+	@ld -T ${LINKERS_DIR}/kernel.ld \
+		-o ${BUILD_DIR}/images/kernel.bin \
+		${shell find ${BUILD_DIR}/kernel -type f}
+	@ld -T ${LINKERS_DIR}/bios.ld \
+		-o ${BUILD_DIR}/images/bios.bin \
+		-melf_i386 \
+		${shell find ${BUILD_DIR}/bios -type f}
 
-# BELOW PLACE MAIN BUILDS
-
-# Bios build.
-bios_build: bios_pre_build
-	@echo "Linking legacy bios bootstrap."
-	@ld -T ${LINKERS_DIR}/linker_$@.ld -o ${LBUILD_DIR}/bios_${OS_NAME}.bin ${shell find ${OBJ_DIR} -type f} -melf_i386
-
-# BELOW PLACE BUILD SPECIFIC PRE BUILDS.
-
-bios_pre_build:
-	@echo "Creating bios folders"
-	@mkdir -p ${LBUILD_DIR}
-	@mkdir -p ${OBJ_DIR}
-	@make -C bios BUILD=${shell pwd}/${OBJ_DIR} --no-print-directory
+build:
+	@echo "Build files"
+	@mkdir -p ${BUILD_DIR}
+	@make -C bios BUILD_DIR=${BUILD_DIR} --no-print-directory
+	@make -C kernel BUILD_DIR=${BUILD_DIR} --no-print-directory
