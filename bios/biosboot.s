@@ -7,6 +7,7 @@
 
 .globl __enable_IA_32e_paging
 .globl __jmp_kernel
+.globl __check_support
 .equ PART_2_ADDR       ,0x9000
 .equ READ_FROM_DISK    ,0x2
 .equ SECTORS_TO_READ   ,0x20
@@ -161,6 +162,55 @@ clear_rm:
 	jmp . # ininity loop.
 
 ######## FUNCTIONS FOR C PART ########
+__check_support:
+    .code32
+    // To check for CPUID we need to check if we are able to swap 21th bit
+    // in EFLAGS.
+    pushl %ebx
+    pushfl
+
+    // Switching byte
+    popl %eax
+    movl %eax       ,%ebx
+    xorl $(1<<21)   ,%eax
+    
+    // Switched flag
+    pushl %eax
+    popfl
+
+    // Checking if was it successful
+    pushfl
+    popl %eax
+    xorl $(1<<21)   ,%eax
+    cmpl %eax       ,%ebx
+    jnz  __check_support_ERROR
+
+    // Recover old EFLAGS
+    pushl %ebx
+    popfl
+
+    // Check for extended CPUID.
+    movl $0x80000000,%eax
+    cpuid
+
+    // Check if we can use 80000001 instruction.
+    cmpl $0x80000001,%eax
+    jb __check_support_ERROR
+
+    // Check for 64bit mode.
+    movl $0x80000001,%eax
+    cpuid
+
+    // Check 29th bit of EDX
+    test $(1<<29)   ,%edx
+    jz __check_support_ERROR
+
+    popl %ebx
+    ret 
+
+    __check_support_ERROR:
+        jmp .
+
 __enable_IA_32e_paging:
     .code32
 

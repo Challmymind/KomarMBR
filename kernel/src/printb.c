@@ -1,10 +1,10 @@
-#include "../inc/hello.h"
+#include "../inc/printb.h"
 
 
-void print_text(int line_number, Tbuffer buf){
+void printb(int line_number, Tbuffer buf){
 
 	if(line_number < 0) return;
-	if(line_number >= 25) return;
+	if(line_number > 24) return;
 
 	char * mem = (char*)0xb8000;
 	mem += line_number * 80 * 2;
@@ -19,10 +19,10 @@ void print_text(int line_number, Tbuffer buf){
 	
 }
 
-void clear_line(int line_number, char background){
+void printb_clear(int line_number, char background){
 
 	if(line_number < 0) return;
-	if(line_number >= 25) return;
+	if(line_number > 24) return;
 
 	char * mem = (char*)0xb8000;
 	mem += line_number * 80 * 2;

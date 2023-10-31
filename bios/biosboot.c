@@ -1,5 +1,6 @@
 extern void __enable_IA_32e_paging();
 extern void __jmp_kernel();
+extern void __check_support();
 
 static void create_table(){
 
@@ -52,6 +53,8 @@ static void create_table(){
 int __c_biosboot(){
 
     create_table();
+
+    __check_support();
 
     __enable_IA_32e_paging();
 
