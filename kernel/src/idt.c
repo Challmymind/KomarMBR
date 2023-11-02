@@ -1,45 +1,34 @@
 #include "../inc/idt.h"
+#include <stdint.h>
 
-extern void __IDT_handler31();
 extern void __IDT_setregister();
 
-void IDT_initialize(){
-    char * mem = (char*)0x0;
-
-    // We need to skip 31 entries.
-    int size = 31 * 16;
-
-    for(int x = 0; x < size; x++){
-       *mem = 0; 
-       mem++;
-    }
-
-    // This offset is only 2bytes long so we don't care that some
-    // will be overwritten.
-    *(long int*)mem = (long int)__IDT_handler31;
-
-    mem+=2;
-
-    *mem = 0x18;
-    mem++;
-    *mem = 0;
-    mem++;
-
-    // Zero IST and reserved
-    *mem = 0;
-    mem++;
-
-    *mem = 0b10001110; // Set type and DPL
-    mem++;
+void IDT_sint(int n, char *handler){
     
-    for(int x = 0; x < 10; x++){
-        *mem = 0;
-        mem++;
-    }
+    // Offset to correct IDT desc.
+    char *mem = (char*)0x0;
+    mem += 16 * n;
+
+    // If address of handler is bigger than 0xFFFF then
+    // it will cause undefined behaviour.
+    // To be repaired later.
+    *((int16_t*)mem) = (int64_t)handler;
+
+    // Set correct segment sel.
+    *((int16_t*)(mem+2)) = 0x18; 
+
+    // Set IST, DPL, P and TYPE
+    *((int16_t*)(mem+4)) = 0b1000111000000000;
+
+    // Zero rest
+    *((int16_t*)(mem+6)) = 0x0; 
+    *((int64_t*)(mem+8)) = 0x0; 
+
+}
+
+void IDT_initialize(){
 
     __IDT_setregister();
-
-    //__IDT_testint31();
 
     return;
 }

@@ -10,10 +10,20 @@ GCCFLAGS = -ffreestanding \
 		   -fno-pie \
 		   -fno-asynchronous-unwind-tables \
 
-src_kernel: printb.o idt.o idts.o mcpy.o
+src_kernel: printb.o idt.o idts.o 	\
+			mcpy.o int_handlers.o 	\
+			int_handlerss.o
 	@echo "Compiling kernel source."
 
 mcpy.o: mcpy.c
+	@mkdir -p ${BUILD}
+	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
+
+int_handlerss.o: int_handlers.s
+	@mkdir -p ${BUILD}
+	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
+
+int_handlers.o: int_handlers.c
 	@mkdir -p ${BUILD}
 	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
 

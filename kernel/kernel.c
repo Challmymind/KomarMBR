@@ -1,32 +1,22 @@
 #include "inc/printb.h"
 #include "inc/idt.h"
 #include "inc/mcpy.h"
+#include "inc/int_handlers.h"
 
 Tbuffer WelcomeMSG = "WE ARE FINALLY IN LONG MODE!";
-Tbuffer InterruptMSG = "INTERRUPT CALLED!";
-
-void handler31(){
-    printb(1, InterruptMSG);
-}
 
 int _kernel(){
 
+    // We need to set at least ints 0-20
+    for(int x = 0; x < 21; x++){
+        IDT_sint(x, (char*)INT_printr);
+    }
     IDT_initialize();
 
-    int line = 25;
+    printb_void();
 
-    do {
-        line--;
-        printb_clear(line, 0x1b);
-    } while(line);
-
-	printb(0, WelcomeMSG);
-
-    //mcpy((char*)InterruptMSG, (char*)0xaa00, 20);
-    cint_31();
+	printb_t(0, WelcomeMSG);
 	
-	while(1){
-
-	}
+	while(1);
 
 }
