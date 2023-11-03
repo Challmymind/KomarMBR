@@ -6,7 +6,7 @@ extern void __IDT_setregister();
 void IDT_sint(int n, char *handler){
     
     // Offset to correct IDT desc.
-    char *mem = (char*)0x0;
+    char *mem = (char*)IDT_LOCATION;
     mem += 16 * n;
 
     // If address of handler is bigger than 0xFFFF then

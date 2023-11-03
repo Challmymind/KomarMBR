@@ -12,18 +12,22 @@ GCCFLAGS = -ffreestanding \
 
 src_kernel: printb.o idt.o idts.o 	\
 			mcpy.o int_handlers.o 	\
-			int_handlerss.o
+			tr.o 	 mcpy_adv.o
 	@echo "Compiling kernel source."
+
+tr.o: tr.s
+	@mkdir -p ${BUILD}
+	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
+
+mcpy_adv.o: mcpy_adv.s
+	@mkdir -p ${BUILD}
+	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
 
 mcpy.o: mcpy.c
 	@mkdir -p ${BUILD}
 	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
 
-int_handlerss.o: int_handlers.s
-	@mkdir -p ${BUILD}
-	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
-
-int_handlers.o: int_handlers.c
+int_handlers.o: int_handlers.s
 	@mkdir -p ${BUILD}
 	@gcc -o ${BUILD}/$@ $^ ${GCCFLAGS}
 

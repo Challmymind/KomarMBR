@@ -37,9 +37,10 @@ void printb_h(int line_number, int64_t num){
     mem += 2*15;
 
 	int row = 15;
-	while(row >= 0){
+	while(row >= 0 && (num != 0)){
 
         int n = num % 16;
+        num -= n;
         num /= 16;
 
         if(n < 10){

@@ -132,6 +132,15 @@ bios2_code:
         # Type explained: "0010" = (Data) Read/Write
         .byte   0b10101111
         .byte   0x00
+    __tr_lm:
+        .word   0x67
+        .word   0xff0
+        .byte   0x0
+        # This type might be invalid
+        .byte   0b10001001
+        .word   0x0
+        .long   0x0
+        .long   0x0
 
     __pm_gdt_end:
     __pm_gdt_desc:
@@ -188,6 +197,12 @@ __check_support:
     // Recover old EFLAGS
     pushl %ebx
     popfl
+
+    // Check for APIC.
+    movl $0x1,%eax
+    cpuid
+    test $(1<<9)    ,%edx
+    jz __check_support_ERROR
 
     // Check for extended CPUID.
     movl $0x80000000,%eax

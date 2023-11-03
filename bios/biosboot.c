@@ -33,6 +33,20 @@ static void create_table(){
     *start |= (1<<0); // bit present                       
     start++;
     *(int*)start = 0x130;
+    
+    // PDT for ACPI
+    start = (char*)0x12008;
+    *start |= (1<<1); // read/write
+    *start |= (1<<0); // bit present                       
+    start++;
+    *(int*)start = 0x140;
+
+    // We need only 4KB page for ACPI so
+    start = (char*)0x14000;
+    *start |= (1<<1); // read/write
+    *start |= (1<<0); // bit present                       
+    start++;
+    *(int*)start = 0xfee000;
 
     // Now we set one page (4kb)
     // So we need 512 entries.
@@ -45,7 +59,6 @@ static void create_table(){
         // We start maping from 0x0000 and we are mapping 2MB.
         // This is made to not brake current addrresses.
         *(int*)start = 0x00 + (0x10*x);
-
     }
 
 }

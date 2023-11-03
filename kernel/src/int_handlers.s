@@ -1,8 +1,29 @@
 .globl INT_printr
+.globl INT_timer
+.globl INT_trap
 .extern printb_t
 .extern printb_h
 
 .text
+
+    INT_trap:
+        iretq
+    
+    INT_timer:
+        movq $24           ,%rdi
+        movq TIMER_COUNTER ,%rsi
+        call printb_h
+        movq TIMER_COUNTER  ,%rax
+        add  $1             ,%rax
+        xorq %rcx           ,%rcx
+        movq %rax           ,TIMER_COUNTER(%rcx)
+        movq $0x200320      ,%rcx
+        movl (%rcx)         ,%eax
+        xorl $(0<<16)       ,%eax
+        movl %eax           ,(%rcx)
+        movq $0x2000b0      ,%rcx
+        movl $1       ,     (%rcx)
+        iretq
 
     INT_printr:
         # According to System V ABI 
@@ -72,3 +93,5 @@
         .asciz "Register C"
     MSG_D:
         .asciz "Register D"
+    TIMER_COUNTER:
+        .long 0x1, 0x0
