@@ -9,10 +9,10 @@ no_selection:
 
 all: link
 	@echo "Creating image file."
-	@fallocate -l ${DISK_IMAGE_SIZE} ${BUILD_DIR}/${OS_NAME}.img
 	@dd of="${BUILD_DIR}/${OS_NAME}.img" \
 		if="/dev/zero" \
-		count=20 \
+		bs=1M \
+		count=10 \
 		conv=notrunc 2> /dev/null
 	@dd of="${BUILD_DIR}/${OS_NAME}.img" \
 		if="${BUILD_DIR}/images/bios.bin" \

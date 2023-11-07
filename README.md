@@ -8,7 +8,6 @@ Komar is for me learning journey that I want to share with others. <br>
 	make
 	ld
 	gcc
-	fallocate
 	dd
 ```
 ## How to compile it? <br>
