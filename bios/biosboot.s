@@ -50,18 +50,23 @@ main:
 INIT_MSG:
     .asciz "INIT"
 
-.fill 446 - (.-.bios1), 1, 0
-# First parition entry in MBR
+.fill 440 - (.-.bios1), 1, 0
+#Unique disk ID
+.long 0x4b6f6d72
+# Reserved
+.word 0x0
+# First parition entry in MBR (16bytes)
 .byte 0x80 # sets bit 7 so the partition is bootable
-.byte 0x0  # START cylindner
-.byte 0x0  # START head
 .byte 0x0  # START sector
+.byte 0x0  # START head
+.byte 0x0  # START cylinder
 .byte 0x0  # partition type
-.byte 0x0  # END cylinder
-.byte 0x0  # END head
 .byte 0x22 # END sector
+.byte 0x0  # END head
+.byte 0x0  # END cylinder
 .long 0x0  # LBA
 .long 0x22 # Numbers of sectors
+
 .fill 510 - (.-.bios1), 1, 0
 .word 0xAA55 # This is magic word that tells BIOS that this is bootable sector.
 
